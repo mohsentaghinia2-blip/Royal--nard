@@ -160,6 +160,72 @@ function pointAt(px,py){
  const bot=[5,4,3,2,1,0,11,10,9,8,7,6];
  return bot[nearest.i];
 }
+function checker(px, py, fill, stroke) {
+  x.beginPath();
+  x.arc(px, py, 17, 0, Math.PI * 2);
+  x.fillStyle = fill;
+  x.fill();
+  x.lineWidth = 3;
+  x.strokeStyle = stroke;
+  x.stroke();
+
+  x.beginPath();
+  x.arc(px, py, 11, 0, Math.PI * 2);
+  x.strokeStyle = '#ffffff33';
+  x.lineWidth = 1;
+  x.stroke();
+}
+
+function tap(e) {
+  if (S.over || busy || !S.rolled ||
+      (mode === 'ai' && S.pl === 1)) return;
+
+  const rect = c.getBoundingClientRect();
+  const px = (e.clientX - rect.left) * 1000 / rect.width;
+  const py = (e.clientY - rect.top) * 700 / rect.height;
+
+  if (px >= 470 && px <= 530 &&
+      S.bar[S.pl] > 0) {
+    selected = 'bar';
+    render();
+    return;
+  }
+
+  const idx = pointAt(px, py);
+  if (idx === null) return;
+
+  if (S.bar[S.pl] > 0) {
+    const entry = now().find(
+      m => m.from === 'bar' && m.to === idx
+    );
+    if (entry) {
+      move(entry);
+      return;
+    }
+    selected = 'bar';
+    render();
+    return;
+  }
+
+  if (selected !== null) {
+    const candidate = now().find(
+      m => m.from === selected && m.to === idx
+    );
+    if (candidate) {
+      move(candidate);
+      return;
+    }
+  }
+
+  if (own(S.p[idx], S.pl)) {
+    selected = idx;
+  } else {
+    selected = null;
+  }
+
+  render();
+}
+
 function render(){draw();$('turn').innerHTML=`حالت: <strong>${mode==='ai'?'مقابل رایانه':'دونفره'}</strong> · نوبت: <strong>${N[S.pl]}</strong>${S.rolled?' · حرکت کنید':' · تاس بریزید'}`;$('roll').disabled=S.rolled||S.over||busy||mode==='ai'&&S.pl===1;$('undo').disabled=!history.length;$('dice').innerHTML=S.d.length?S.d.map(d=>`<span class="die">${diceChars[d]}</span>`).join(''):'<span class="msg">تاس‌های نوبت بعد</span>';$('score').textContent=`مهره‌های خارج‌شده — سفید: ${S.off[0]} · تیره: ${S.off[1]}`;$('scoreWhite').textContent=fa(matchScore[0]);$('scoreDark').textContent=fa(matchScore[1]);$('targetValue').textContent=fa(matchTarget);$('darkPlayerName').textContent=mode==='ai'?'رایانه':'بازیکن تیره';}
 c.addEventListener('pointerup',tap);$('roll').addEventListener('click',roll);$('undo').addEventListener('click',()=>{if(history.length){S=JSON.parse(history.pop());selected=null;busy=false;render()}});
 $('restart').addEventListener('click',()=>{if(confirm('دست جدید شروع شود؟ امتیاز مسابقه حفظ می‌شود.')){S=init();history=[];selected=null;busy=false;legal=[];render()}});
