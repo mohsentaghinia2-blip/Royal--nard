@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#17120e">
+<meta name="description" content="تخته‌نرد لوکس آفلاین با بازی دونفره و حریف رایانه‌ای">
+<link rel="manifest" href="manifest.webmanifest">
+<title>تخته‌نرد سلطنتی</title>
+<style>
+:root{--gold:#e0bd78;--gold2:#9c7136;--dark:#17120e;--panel:#251d17;--text:#f8edda;--muted:#c4b59b;--green:#17483a}
+*{box-sizing:border-box}
+body{margin:0;color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;background:radial-gradient(ellipse at top,#4a3020 0,#17100b 68%);min-height:100vh}
+header{max-width:1080px;margin:auto;padding:15px 14px 9px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{display:flex;align-items:center;gap:11px}.logo{width:45px;height:45px;border-radius:13px;display:grid;place-items:center;font-size:26px;color:#25190e;background:linear-gradient(135deg,#f4dfaa,#b17a31);box-shadow:0 5px 18px #0007}
+.title{font-weight:850;font-size:20px;letter-spacing:-.5px}.subtitle{font-size:11px;color:var(--muted);margin-top:1px}.offline{border:1px solid #d9b66b55;color:#efd39b;background:#d9b66b12;padding:7px 10px;border-radius:99px;font-size:11px;white-space:nowrap}
+main{max-width:1080px;margin:auto;padding:8px 12px 28px}.topbar{display:flex;gap:9px;align-items:stretch;flex-wrap:wrap;margin-bottom:11px}.turn{background:linear-gradient(135deg,#3a281b,#21150e);border:1px solid #e0bd7833;border-radius:13px;padding:11px 13px;flex:1;min-width:190px;font-size:13px}
+.turn strong{color:var(--gold)}.actions{display:flex;gap:7px;flex-wrap:wrap}button,select{font:inherit;border-radius:10px;padding:10px 12px;cursor:pointer;touch-action:manipulation}
+button{border:1px solid #f4dca044;background:linear-gradient(135deg,#f0d18c,#b88740);color:#251a10;font-weight:800;box-shadow:0 3px 0 #785329}
+button.secondary{background:#2b2118;border:1px solid #ffffff22;color:#f5e8d0;box-shadow:none}button:disabled{opacity:.42;cursor:not-allowed}
+.board-frame{position:relative;overflow:hidden;padding:9px;border-radius:20px;background:linear-gradient(130deg,#3b2112,#bd8b50 17%,#4d2c18 44%,#d5ad6b 75%,#2f1a0e);box-shadow:0 18px 40px #0008,inset 0 0 0 1px #ffebb055}
+.board-inner{position:relative;padding:7px;border-radius:12px;background:linear-gradient(135deg,#24140b,#6b4326,#2a170d);box-shadow:inset 0 0 0 2px #d2a45b55}
+canvas{display:block;width:100%;height:auto;border-radius:7px;touch-action:manipulation}
+.below{display:grid;grid-template-columns:1.1fr 1fr;gap:10px;margin-top:12px}.panel{background:linear-gradient(145deg,#342318,#21150e);border:1px solid #d9b66b25;border-radius:14px;padding:12px;min-width:0}.panel h2{font-size:13px;color:var(--gold);margin:0 0 8px}
+.dice{display:flex;align-items:center;gap:12px;min-height:70px;flex-wrap:wrap}
+.die{width:58px;height:58px;border-radius:13px;background:linear-gradient(145deg,#fff9eb,#d8c5a0);color:#261b12;display:grid;place-items:center;font-weight:900;font-size:38px;box-shadow:0 5px 9px #0007,inset 0 -3px #bda781;animation:pop .22s ease-out}
+.die.used{opacity:.25;animation:none}.msg{font-size:12px;line-height:1.8;color:#e8dcc6}.modeRow{display:flex;gap:6px;flex-wrap:wrap}.modeBtn{flex:1;min-width:115px}.modeBtn.active{outline:2px solid var(--gold);outline-offset:1px}.help{font-size:12px;color:#bcae96;line-height:1.9;margin-top:12px}.footer{text-align:center;color:#8e7c64;font-size:11px;padding-top:17px}.tag{font-size:10px;color:#d8c29c;border:1px solid #c5a36544;border-radius:99px;padding:3px 7px;margin-right:5px}
+@keyframes pop{from{transform:scale(.6) rotate(-15deg);opacity:.4}to{transform:scale(1) rotate(0);opacity:1}}
+@media(max-width:560px){header{padding-top:12px}.title{font-size:17px}.offline{font-size:10px;padding:6px 8px}.below{grid-template-columns:1fr}.actions button{font-size:12px;padding:9px}.board-frame{padding:5px;border-radius:14px}.board-inner{padding:4px}.die{width:54px;height:54px;font-size:35px}}
+.play-layout{display:grid;grid-template-columns:145px minmax(0,1fr);gap:12px;align-items:stretch}.score-rail{display:flex;flex-direction:column;gap:10px;min-width:0}
+.score-card,.match-card{border:1px solid #d9b66b42;border-radius:13px;padding:12px 9px;text-align:center;background:linear-gradient(145deg,#392619,#21150e);box-shadow:inset 0 1px #ffffff0a}
+.score-title{display:flex;align-items:center;justify-content:center;gap:6px;font-size:11px;color:#ead8b7;line-height:1.5}.checker-icon{display:inline-block;width:13px;height:13px;border-radius:50%;border:2px solid #8d6b3f;flex-shrink:0}
+.light-icon{background:linear-gradient(135deg,#fff8e8,#d7c29b);box-shadow:0 0 0 2px #fff1d022}.dark-icon{background:linear-gradient(135deg,#4c4945,#111);border-color:#a78a5b}
+.score-num{font-size:38px;line-height:1.25;font-weight:900;color:#f0d18c;text-shadow:0 2px 12px #0008;font-variant-numeric:tabular-nums}.score-caption,.match-label{font-size:10px;color:#b9a487}.match-value{font-size:16px;font-weight:800;color:#f4dfb0;margin:5px 0 9px}.small-btn{font-size:10px;padding:6px 8px;width:100%}.score-note{font-size:10px;color:#b9a487;line-height:1.8;padding:0 3px}
+@media(max-width:620px){.play-layout{grid-template-columns:1fr;gap:8px}.score-rail{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;align-items:stretch}.score-card,.match-card{padding:8px 5px}.score-num{font-size:27px}.score-title{font-size:10px}.score-caption,.match-label{font-size:9px}.match-value{font-size:13px}.small-btn{font-size:9px;padding:5px 4px}.score-note{grid-column:1/-1;text-align:center}.board-frame{order:2}}
+</style>
+</head>
+<body>
+<header><div class="brand"><div class="logo">♟</div><div><div class="title">تخته‌نرد سلطنتی</div><div class="subtitle">ROYAL NARD · چوب گردو · نسخه‌ی آزمایشی ۹</div></div></div><div class="offline">◆ آفلاین · بدون تبلیغ</div></header>
+<main>
+<div class="topbar"><div class="turn" id="turn">حالت: <strong>تک‌نفره</strong> · نوبت: <strong>سفید</strong></div><div class="actions"><button id="roll">🎲 تاس بریز</button><button id="undo" class="secondary" disabled>بازگشت</button><button id="restart" class="secondary">بازی جدید</button></div></div>
+<div class="play-layout">
+<aside class="score-rail" aria-label="امتیاز بازیکنان">
+  <div class="score-card light-score"><div class="score-title"><span class="checker-icon light-icon"></span><span>بازیکن سفید</span></div><div class="score-num" id="scoreWhite">۰</div><div class="score-caption">امتیاز مسابقه</div></div>
+  <div class="match-card"><div class="match-label">هدف مسابقه</div><div class="match-value"><span id="targetValue">۵</span> امتیاز</div><button id="targetBtn" class="secondary small-btn">تغییر هدف</button></div>
+  <div class="score-card dark-score"><div class="score-title"><span class="checker-icon dark-icon"></span><span id="darkPlayerName">بازیکن تیره</span></div><div class="score-num" id="scoreDark">۰</div><div class="score-caption">امتیاز مسابقه</div></div>
+  <div class="score-note" id="scoreNote">برد معمولی ۱، گامون ۲ و بک‌گامون ۳ امتیاز دارد.</div>
+</aside>
+<div class="board-frame"><div class="board-inner"><canvas id="board" width="1000" height="700" aria-label="صفحه بازی تخته نرد"></canvas></div></div>
+</div>
+<div class="below">
+<section class="panel"><h2>حالت بازی <span class="tag">قابل تغییر</span></h2><div class="modeRow"><button class="secondary modeBtn active" id="aiMode">🤖 مقابل رایانه</button><button class="secondary modeBtn" id="localMode">👥 دونفره</button></div><h2 style="margin-top:13px">تاس‌های این نوبت</h2><div class="dice" id="dice"><span class="msg">برای شروع تاس بریزید.</span></div></section>
+<section class="panel"><h2>وضعیت بازی</h2><div class="msg" id="status">تاس بریزید، مهره‌ی خود را انتخاب کنید و سپس مقصد را لمس کنید. در حالت رایانه، مهره‌های تیره متعلق به حریف هستند.</div><div class="msg" id="score" style="margin-top:7px;color:#d7bd8b">سفید خارج‌شده: ۰ · تیره خارج‌شده: ۰</div></section>
+</div>
+<div class="help"><b>راهنما:</b> تاس بریزید، مهره‌ی روشن/تیره‌ی خود را لمس کنید و مقصد را انتخاب کنید. اگر مهره‌ای زده شود به بار می‌رود و باید پیش از مهره‌های دیگر وارد شود. پس از انتقال همه‌ی مهره‌ها به خانه‌ی پایانی می‌توانید آن‌ها را خارج کنید. در حالت رایانه، نوبت رایانه به‌صورت خودکار انجام می‌شود.<br><b>توجه:</b> این نسخه‌ی نمونه برای آزمایش تجربه‌ی بازی است؛ پیش از انتشار تجاری باید قوانین و تمام حالت‌های تخته‌نرد با آزمون‌های مستقل اعتبارسنجی شوند.</div>
+<div class="footer">ROYAL NARD · نسخه آزمایشی 9.0 · اجرای محلی و بدون نیاز به حساب</div>
+</main>
+<script>
+(()=>{
+const c=document.getElementById('board'),x=c.getContext('2d'),$=id=>document.getElementById(id);
+let S,mode='ai',selected=null,history=[],legal=[],busy=false,matchScore=[0,0],matchTarget=5;
+const STORAGE_KEY='royal-nard-match-v5';
+function loadMatch(){try{const v=JSON.parse(localStorage.getItem(STORAGE_KEY)||'null');if(v&&Array.isArray(v.score)&&v.score.length===2){matchScore=v.score.map(n=>Math.max(0,Number(n)||0));matchTarget=Math.min(15,Math.max(1,Number(v.target)||5));}}catch(e){}}
+function persistMatch(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify({score:matchScore,target:matchTarget}));}catch(e){}}
+const N=['سفید','تیره'],fa=n=>String(n).replace(/[0-9]/g,d=>'۰۱۲۳۴۵۶۷۸۹'[d]),diceChars=['','⚀','⚁','⚂','⚃','⚄','⚅'];
+function init(){let p=Array(24).fill(0);p[23]=2;p[12]=5;p[7]=3;p[5]=5;p[0]=-2;p[11]=-5;p[16]=-3;p[18]=-5;return {p,bar:[0,0],off:[0,0],pl:0,d:[],rolled:false,over:false};}
+function save(){history.push(JSON.stringify(S));$('undo').disabled=false}
+function own(v,p){return p===0?v>0:v<0}
+function home(p,i){return p===0?i<=5:i>=18}
+function allHome(p){if(S.bar[p])return false;return S.p.every((v,i)=>!own(v,p)||home(p,i))}
+function far(pos,p,i){return p===0?pos.some((v,j)=>j>i&&j<=5&&own(v,p)):pos.some((v,j)=>j>=18&&j<i&&own(v,p))}
+function bear(pos,bar,p,i,d){if(bar[p]||!home(p,i)||pos.some((v,j)=>own(v,p)&&!home(p,j)))return false;let to=i+(p===0?-d:d);if(to>=0&&to<24)return false;if(p===0&&to<0&&i<=5)return d===i+1||!far(pos,p,i);if(p===1&&to>23&&i>=18)return d===24-i||!far(pos,p,i);return false}
+function dest(p,from,d){return from==='bar'?(p===0?24-d:d-1):from+(p===0?-d:d)}
+function moves(pos,bar,p,d){let out=[];if(bar[p]){let to=dest(p,'bar',d);if(to>=0&&to<24&&(pos[to]===0||own(pos[to],p)||Math.abs(pos[to])===1))out.push({from:'bar',to,d});return out}
+for(let i=0;i<24;i++)if(own(pos[i],p)){let to=dest(p,i,d);if(to>=0&&to<24){if(pos[to]===0||own(pos[to],p)||Math.abs(pos[to])===1)out.push({from:i,to,d})}else if(bear(pos,bar,p,i,d))out.push({from:i,to:'off',d})}return out}
+function seqs(pos,bar,off,p,ds,seq=[]){if(!ds.length)return [{seq,pos,bar,off}];let out=[];for(let k=0;k<ds.length;k++){for(let m of moves(pos,bar,p,ds[k])){let r=apply(pos,bar,off,p,m);out.push(...seqs(r.p,r.bar,r.off,p,ds.filter((_,j)=>j!==k),seq.concat([m])))}}return out.length?out:[{seq,pos,bar,off}]}
+function calc(){let all=seqs(S.p,S.bar,S.off,S.pl,S.d.slice()),max=Math.max(...all.map(a=>a.seq.length));all=all.filter(a=>a.seq.length===max);if(S.d.length===2&&S.d[0]!==S.d[1]&&max===1){let hi=Math.max(...all.map(a=>a.seq[0]?.d||0));all=all.filter(a=>(a.seq[0]?.d||0)===hi)}legal=all}
+function now(){return legal.filter(a=>a.seq.length).map(a=>a.seq[0])}
+function apply(pos,bar,off,p,m){let a=pos.slice(),b=bar.slice(),o=off.slice(),to=m.to;if(m.from==='bar')b[p]--;else a[m.from]-=p===0?1:-1;
+if(to==='off'){o[p]++;return {p:a,bar:b,off:o}}
+if(a[to]!==0&&!own(a[to],p)&&Math.abs(a[to])===1){b[1-p]++;a[to]=0}a[to]+=p===0?1:-1;return {p:a,bar:b,off:o}}
+function awardMatchPoint(winner){
+ const loser=1-winner;let pts=1,kind='برد معمولی';
+ if(S.off[loser]===0){const loserOnWinnerHome=S.p.some((v,i)=>own(v,loser)&&(winner===0?i<=5:i>=18));if(S.bar[loser]>0||loserOnWinnerHome){pts=3;kind='بک‌گامون';}else{pts=2;kind='گامون';}}
+ matchScore[winner]+=pts;persistMatch();const matchDone=matchScore[winner]>=matchTarget;render();
+ $('status').textContent=`${N[winner]} برنده شد: ${kind}، ${fa(pts)} امتیاز.`+(matchDone?' مسابقه را هم برد!':' برای دست بعدی «بازی جدید» را بزنید.');
+ $('scoreNote').textContent=matchDone?`برنده‌ی مسابقه: ${N[winner]}`:`${kind}: ${fa(pts)} امتیاز؛ امتیاز مسابقه حفظ می‌شود.`;
+}
+function move(m){let candidates=legal.filter(a=>a.seq.length&&a.seq[0].from===m.from&&a.seq[0].to===m.to&&a.seq[0].d===m.d);if(!candidates.length)return false;save();let r=apply(S.p,S.bar,S.off,S.pl,m);S.p=r.p;S.bar=r.bar;S.off=r.off;S.d.splice(S.d.indexOf(m.d),1);selected=null;if(S.off[S.pl]>=15){S.over=true;let winner=S.pl;awardMatchPoint(winner);return true}if(!S.d.length){endTurn();return true}calc();render();return true}
+function endTurn(){S.pl=1-S.pl;S.d=[];S.rolled=false;selected=null;legal=[];render();if(mode==='ai'&&S.pl===1&&!S.over)setTimeout(aiTurn,650)}
+function roll(){if(S.rolled||S.over||busy)return;save();let a=1+Math.random()*6|0,b=1+Math.random()*6|0;S.d=a===b?[a,a,a,a]:[a,b];S.rolled=true;calc();if(!now().length){render();$('status').textContent='حرکت قانونی ندارید؛ نوبت رد می‌شود.';setTimeout(()=>{if(S.rolled&&!now().length)endTurn()},850)}else{$('status').textContent='خانه‌های دارای حرکت قانونی مشخص شده‌اند؛ مهره را انتخاب کنید.';render()}}
+function aiTurn(){if(mode!=='ai'||S.pl!==1||S.over)return;busy=false;$('status').textContent='رایانه در حال انتخاب حرکت…';roll();if(!S.rolled){busy=false;return}busy=true;let guard=0;function step(){if(S.pl!==1||S.over||!S.rolled||guard++>8){busy=false;return}let ms=now();if(!ms.length){endTurn();busy=false;return}let best=null,bestScore=-1e9;for(let m of ms){let r=apply(S.p,S.bar,S.off,S.pl,m),toIndex=m.to==='off'?0:m.to,score=Math.random()*1.5+(r.off[1]-S.off[1])*8+(r.bar[0]-S.bar[0])*5+(Math.abs(r.p[toIndex]||0)===1?1:0);if(score>bestScore){bestScore=score;best=m}}move(best);if(S.pl===1&&S.rolled&&!S.over)setTimeout(step,400);else busy=false}setTimeout(step,350)}
+function checker(px,py,fill,stroke){x.beginPath();x.arc(px,py,17,0,Math.PI*2);x.fillStyle=fill;x.fill();x.lineWidth=3;x.strokeStyle=stroke;x.stroke();x.beginPath();x.arc(px,py,11,0,Math.PI*2);x.strokeStyle='#ffffff33';x.lineWidth=1;x.stroke()}
+function draw(){
+ x.clearRect(0,0,1000,700);
+ let wood=x.createLinearGradient(0,0,1000,700);wood.addColorStop(0,'#805537');wood.addColorStop(.24,'#5d3922');wood.addColorStop(.55,'#3f2517');wood.addColorStop(.82,'#6b4428');wood.addColorStop(1,'#2c190f');x.fillStyle=wood;x.fillRect(0,0,1000,700);
+ for(let i=0;i<42;i++){let yy=10+i*17;x.beginPath();x.moveTo(8,yy);x.bezierCurveTo(180,yy-8+(i%3)*5,320,yy+7,490,yy-2);x.strokeStyle=i%2?'#e0b77912':'#12090520';x.lineWidth=1.4;x.stroke();x.beginPath();x.moveTo(510,yy+2);x.bezierCurveTo(650,yy-5,820,yy+9,992,yy-1);x.strokeStyle=i%2?'#e0b77912':'#12090520';x.stroke()}
+ let felt=x.createLinearGradient(0,20,0,680);felt.addColorStop(0,'#4b2d1c');felt.addColorStop(.5,'#382114');felt.addColorStop(1,'#4a2b1a');x.fillStyle=felt;x.fillRect(18,18,964,664);x.strokeStyle='#d8b16b';x.lineWidth=3;x.strokeRect(21,21,958,658);x.strokeStyle='#1b1009';x.lineWidth=2;x.strokeRect(29,29,942,642);
+ const xs=[66,137,208,279,350,421,579,650,721,792,863,934];
+ const topPts=[12,13,14,15,16,17,18,19,20,21,22,23];
+ // Standard bottom numbering, read from right to left: 1..6, then 7..12
+ const botPts=[11,10,9,8,7,6,5,4,3,2,1,0];
+ let barGrad=x.createLinearGradient(470,0,530,0);barGrad.addColorStop(0,'#29170d');barGrad.addColorStop(.45,'#b58a4d');barGrad.addColorStop(.55,'#e0c17d');barGrad.addColorStop(1,'#29170d');x.fillStyle=barGrad;x.fillRect(474,30,52,640);x.strokeStyle='#edcf8b';x.lineWidth=1.4;x.strokeRect(483,36,34,628);
+ for(let j=0;j<12;j++){
+   const px=xs[j],topIndex=topPts[j],bottomIndex=botPts[j];
+   x.beginPath();x.moveTo(px-29,36);x.lineTo(px+29,36);x.lineTo(px,252);x.closePath();let tg=x.createLinearGradient(px-20,40,px+20,300);tg.addColorStop(0,j%2===0?'#8b6945':'#704337');tg.addColorStop(1,j%2===0?'#65472f':'#57352b');x.fillStyle=tg;x.fill();x.strokeStyle='#e3c58a30';x.lineWidth=1;x.stroke();
+   x.beginPath();x.moveTo(px-29,664);x.lineTo(px+29,664);x.lineTo(px,448);x.closePath();let bg=x.createLinearGradient(px-20,400,px+20,660);bg.addColorStop(0,j%2===0?'#65472f':'#57352b');bg.addColorStop(1,j%2===0?'#8b6945':'#704337');x.fillStyle=bg;x.fill();x.strokeStyle='#e3c58a30';x.stroke();
+   x.fillStyle='#f4d99c';x.font='bold 14px system-ui';x.textAlign='center';x.fillText(String(topIndex+1),px,31);x.fillText(String(bottomIndex+1),px,695);
+   const topCount=Math.abs(S.p[topIndex]),bottomCount=Math.abs(S.p[bottomIndex]);
+   for(let k=0;k<Math.min(topCount,5);k++)checker(px,57+k*27,S.p[topIndex]>0?'#f6e8c8':'#25272a',S.p[topIndex]>0?'#a58a5e':'#090d0f');
+   for(let k=0;k<Math.min(bottomCount,5);k++)checker(px,643-k*27,S.p[bottomIndex]>0?'#f6e8c8':'#25272a',S.p[bottomIndex]>0?'#a58a5e':'#090d0f');
+   if(topCount>5){x.fillStyle='#1d120b';x.beginPath();x.arc(px,57+4*27,10,0,Math.PI*2);x.fill();x.fillStyle='#fff0cc';x.font='bold 11px system-ui';x.fillText(String(topCount),px,61+4*27)}
+   if(bottomCount>5){x.fillStyle='#1d120b';x.beginPath();x.arc(px,643-4*27,10,0,Math.PI*2);x.fill();x.fillStyle='#fff0cc';x.font='bold 11px system-ui';x.fillText(String(bottomCount),px,647-4*27)}
+   if(selected===topIndex&&topCount){x.strokeStyle='#ffe29b';x.lineWidth=4;x.beginPath();x.arc(px,57+(Math.min(topCount,5)-1)*27,22,0,Math.PI*2);x.stroke()}
+   if(selected===bottomIndex&&bottomCount){x.strokeStyle='#ffe29b';x.lineWidth=4;x.beginPath();x.arc(px,643-(Math.min(bottomCount,5)-1)*27,22,0,Math.PI*2);x.stroke()}
+ }
+ for(let p=0;p<2;p++)for(let k=0;k<S.bar[p];k++)checker(500,p===0?170+k*27:530-k*27,p===0?'#f6e8c8':'#25272a',p===0?'#a58a5e':'#090d0f');
+ x.fillStyle='#f3d8a0';x.font='bold 15px system-ui';x.textAlign='center';x.fillText('BAR',500,350);x.font='bold 12px system-ui';x.fillText('خارج '+S.off[0],445,370);x.fillText('خارج '+S.off[1],555,370);
+ const available=now();
+ if(S.rolled&&!S.over){
+   if(selected===null){
+     const sources=new Set(available.filter(m=>m.from!=='bar').map(m=>m.from));
+     for(const i of sources){const v=visual(i);x.save();x.shadowColor='#ffe29b';x.shadowBlur=13;x.beginPath();x.arc(v.x,v.y,23,0,Math.PI*2);x.strokeStyle='#ffe29b';x.lineWidth=4;x.stroke();x.restore()}
+     if(S.bar[S.pl]>0){x.save();x.shadowColor='#ffe29b';x.shadowBlur=14;x.strokeStyle='#ffe29b';x.lineWidth=4;x.strokeRect(478,35,44,630);x.restore()}
+   }else{
+     const targets=available.filter(m=>m.from===selected),seen=new Set();
+     for(const m of targets){if(m.to==='off'||seen.has(m.to))continue;seen.add(m.to);const v=visual(m.to);x.save();x.shadowColor='#ffe29b';x.shadowBlur=15;x.beginPath();x.arc(v.x,v.y,22,0,Math.PI*2);x.fillStyle='#e6c47a66';x.fill();x.strokeStyle='#ffe29b';x.lineWidth=3;x.stroke();x.restore()}
+   }
+ }
+}
+function visual(i){
+ const xs=[66,137,208,279,350,421,579,650,721,792,863,934];
+ const map={0:934,1:863,2:792,3:721,4:650,5:579,6:421,7:350,8:279,9:208,10:137,11:66};
+ const count=Math.min(Math.abs(S.p[i]),5);
+ if(i>=12)return{x:xs[i-12],y:count?57+(count-1)*27:238};
+ return{x:map[i],y:count?643-(count-1)*27:462};
+}
+function pointAt(px,py){
+ const xs=[66,137,208,279,350,421,579,650,721,792,863,934];
+ let nearest=xs.map((v,i)=>({i,d:Math.abs(v-px)})).sort((a,b)=>a.d-b.d)[0];
+ if(nearest.d>34)return null;
+ if(py<350)return 12+nearest.i;
+ const bot=[11,10,9,8,7,6,5,4,3,2,1,0];
+ return bot[nearest.i];
+}
+function tap(e){
+ if(S.over||busy||!S.rolled||(mode==='ai'&&S.pl===1))return;
+ const rect=c.getBoundingClientRect(),px=(e.clientX-rect.left)*1000/rect.width,py=(e.clientY-rect.top)*700/rect.height;
+ if(px>=470&&px<=530&&S.bar[S.pl]>0){selected='bar';render();return}
+ const idx=pointAt(px,py);if(idx===null)return;
+ if(S.bar[S.pl]>0){const entry=now().find(m=>m.from==='bar'&&m.to===idx);if(entry){move(entry);return}selected='bar';render();return}
+ if(selected!==null){const candidate=now().find(m=>m.from===selected&&m.to===idx);if(candidate){move(candidate);return}}
+ if(own(S.p[idx],S.pl))selected=idx;else selected=null;
+ render();
+}
+function render(){
+ draw();
+ $('turn').innerHTML=`حالت: <strong>${mode==='ai'?'مقابل رایانه':'دونفره'}</strong> · نوبت: <strong>${N[S.pl]}</strong>${S.rolled?' · حرکت کنید':' · تاس بریزید'}`;
+ $('roll').disabled=S.rolled||S.over||busy||(mode==='ai'&&S.pl===1);
+ $('undo').disabled=!history.length;
+ $('dice').innerHTML=S.d.length?S.d.map(d=>`<span class="die" aria-label="تاس ${d}">${diceChars[d]}</span>`).join(''):'<span class="msg">تاس‌های نوبت بعد</span>';
+ $('score').textContent=`مهره‌های خارج‌شده — سفید: ${fa(S.off[0])} · تیره: ${fa(S.off[1])}`;
+ $('scoreWhite').textContent=fa(matchScore[0]);$('scoreDark').textContent=fa(matchScore[1]);$('targetValue').textContent=fa(matchTarget);$('darkPlayerName').textContent=mode==='ai'?'رایانه':'بازیکن تیره';
+}
+c.addEventListener('pointerup',tap);
+$('roll').addEventListener('click',roll);
+$('undo').addEventListener('click',()=>{if(history.length){S=JSON.parse(history.pop());selected=null;busy=false;calc();render()}});
+$('restart').addEventListener('click',()=>{if(confirm('دست جدید شروع شود؟ امتیاز مسابقه حفظ می‌شود.')){S=init();history=[];selected=null;busy=false;legal=[];render();$('status').textContent='دست جدید آماده است؛ تاس بریزید.'}});
+$('targetBtn').addEventListener('click',()=>{let v=prompt('هدف مسابقه چند امتیاز باشد؟ (۱ تا ۱۵)',String(matchTarget));if(v!==null){let n=Number(v);if(Number.isInteger(n)&&n>=1&&n<=15){matchTarget=n;persistMatch();render()}else alert('عدد معتبر بین ۱ تا ۱۵ وارد کنید.')}});
+$('aiMode').addEventListener('click',()=>{mode='ai';$('aiMode').classList.add('active');$('localMode').classList.remove('active');S=init();history=[];selected=null;busy=false;legal=[];render();$('status').textContent='حالت مقابل رایانه انتخاب شد؛ تاس بریزید.'});
+$('localMode').addEventListener('click',()=>{mode='local';$('localMode').classList.add('active');$('aiMode').classList.remove('active');S=init();history=[];selected=null;busy=false;legal=[];render();$('status').textContent='حالت دونفره انتخاب شد؛ بازیکن سفید تاس بریزد.'});
+loadMatch();S=init();render();
+if('serviceWorker'in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js').catch(()=>{});
+})();
+</script>
+</body>
+</html>
